@@ -8,37 +8,17 @@
 <meta name="theme-color" content="#0d0f14">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" id="pwa-manifest">
-<script>
-// Inline PWA Manifest
-const manifest = {
-  name: "DGUV V3 Prüfverwaltung",
-  short_name: "DGUV V3",
-  description: "Elektrische Betriebsmittel prüfen und verwalten",
-  start_url: "./",
-  display: "standalone",
-  orientation: "portrait",
-  background_color: "#0d0f14",
-  theme_color: "#0d0f14",
-  icons: [
-    { src: "data:image/svg+xml;base64," + btoa(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='28' fill='%230d0f14'/><polygon points='112,20 60,100 96,100 80,172 140,88 104,88 148,20' fill='%2300d4ff'/></svg>`), sizes: "192x192", type: "image/svg+xml" },
-    { src: "data:image/svg+xml;base64," + btoa(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='60' fill='%230d0f14'/><polygon points='300,48 160,268 256,268 214,464 376,236 280,236 396,48' fill='%2300d4ff'/></svg>`), sizes: "512x512", type: "image/svg+xml" }
-  ]
-};
-const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
-document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
-</script>
 <title>DGUV V3</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <style>
 :root {
-  --bg:#0d0f14; --bg2:#13161d; --bg3:#1a1e27;
-  --border:#252a36; --border2:#2e3545;
-  --accent:#00d4ff; --green:#00e676; --orange:#ffaa00; --red:#ff4444; --gray:#5a6480;
-  --text:#e8ecf4; --text2:#8892a4;
-  --mono:'IBM Plex Mono',monospace; --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  --nav-h:64px; --safe-bottom:env(safe-area-inset-bottom,0px);
-  --safe-top:env(safe-area-inset-top,0px);
+  --bg:#0d0f14;--bg2:#13161d;--bg3:#1a1e27;
+  --border:#252a36;--border2:#2e3545;
+  --accent:#00d4ff;--green:#00e676;--orange:#ffaa00;--red:#ff4444;--gray:#5a6480;
+  --text:#e8ecf4;--text2:#8892a4;
+  --mono:'IBM Plex Mono',monospace;--sans:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --nav-h:64px;--safe-bottom:env(safe-area-inset-bottom,0px);--safe-top:env(safe-area-inset-top,0px);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html{height:100%;background:var(--bg);}
@@ -50,17 +30,29 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);
 .topbar-right{display:flex;gap:8px;align-items:center;}
 .icon-btn{background:none;border:none;color:var(--text2);cursor:pointer;padding:8px;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
 .icon-btn:active{background:var(--border2);color:var(--text);}
+
+/* AREA TABS (Fertigung/Büro) */
+.area-tabs{display:flex;background:var(--bg);border-bottom:2px solid var(--border);flex-shrink:0;}
+.area-tab{flex:1;padding:10px 8px;text-align:center;font-size:14px;font-weight:600;color:var(--text2);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;user-select:none;letter-spacing:.03em;}
+.area-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.area-tab.fertigung.active{color:#00e676;border-bottom-color:#00e676;}
+.area-tab.buero.active{color:#ffaa00;border-bottom-color:#ffaa00;}
+
+/* SUB TABS */
 .tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;}
 .tab{flex:1;padding:12px 8px;text-align:center;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;user-select:none;}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+
 .screens{flex:1;overflow:hidden;position:relative;}
 .screen{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;}
 .screen.active{display:block;}
+
 .stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border);}
 .stat{background:var(--bg2);padding:10px 8px;text-align:center;}
 .stat-val{font-family:var(--mono);font-size:20px;font-weight:600;line-height:1;}
 .stat-lbl{font-size:10px;color:var(--text2);margin-top:3px;}
-.c-total{color:var(--text);} .c-ok{color:var(--green);} .c-warn{color:var(--orange);} .c-err{color:var(--red);}
+.c-total{color:var(--text);}.c-ok{color:var(--green);}.c-warn{color:var(--orange);}.c-err{color:var(--red);}
+
 .search-area{padding:12px;background:var(--bg2);border-bottom:1px solid var(--border);}
 .search-wrap{position:relative;margin-bottom:10px;}
 .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--gray);pointer-events:none;}
@@ -71,9 +63,9 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);
 .filter-row::-webkit-scrollbar{display:none;}
 .filter-chip{flex-shrink:0;padding:6px 12px;border-radius:20px;font-size:12px;font-family:var(--mono);border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;}
 .filter-chip.active{border-color:var(--accent);color:var(--accent);background:rgba(0,212,255,.08);}
+
 .cards{padding:10px;}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;transition:border-color .15s;}
-.card:active{border-color:var(--border2);}
 .card-top{padding:14px 14px 10px;}
 .card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;}
 .card-name{font-weight:600;font-size:15px;line-height:1.3;flex:1;}
@@ -102,9 +94,11 @@ body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);
 .card-action-btn+.card-action-btn{border-left:1px solid var(--border);}
 .card-pruefer{padding:8px 14px;background:rgba(0,212,255,.04);border-top:1px solid var(--border);font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px;}
 .card-pruefer span{color:var(--text);}
+
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;gap:12px;color:var(--text2);}
 .empty svg{opacity:.25;}
 .empty p{font-family:var(--mono);font-size:12px;letter-spacing:.05em;text-align:center;}
+
 .form-screen{padding:16px;padding-bottom:calc(16px + var(--safe-bottom));}
 .form-section{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;}
 .form-section-title{padding:12px 16px;font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg3);}
@@ -129,18 +123,18 @@ select.form-input option{background:var(--bg3);}
 .btn-primary{background:var(--accent);color:#000;}
 .btn-primary:active{background:#33ddff;}
 .btn-secondary{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);}
-.btn-secondary:active{border-color:var(--text2);}
 .btn svg{width:18px;height:18px;flex-shrink:0;}
+
 .bottom-nav{display:flex;background:var(--bg2);border-top:1px solid var(--border);height:calc(var(--nav-h) + var(--safe-bottom));padding-bottom:var(--safe-bottom);flex-shrink:0;}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:var(--text2);transition:color .15s;border:none;background:none;padding:0;}
 .nav-item.active{color:var(--accent);}
 .nav-item svg{width:22px;height:22px;}
 .nav-label{font-size:10px;font-family:var(--mono);letter-spacing:.03em;}
-.nav-scan{position:relative;}
 .nav-scan .scan-circle{width:52px;height:52px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;margin-top:-22px;box-shadow:0 4px 20px rgba(0,212,255,.4);transition:transform .15s,box-shadow .15s;}
-.nav-scan:active .scan-circle{transform:scale(.93);box-shadow:0 2px 10px rgba(0,212,255,.3);}
+.nav-scan:active .scan-circle{transform:scale(.93);}
 .nav-scan svg{color:#000;width:24px;height:24px;}
 .nav-scan .nav-label{margin-top:2px;}
+
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;display:none;align-items:flex-end;justify-content:center;}
 .modal-overlay.open{display:flex;}
 .modal-sheet{background:var(--bg2);border-radius:20px 20px 0 0;border:1px solid var(--border2);width:100%;max-width:520px;padding:20px;padding-bottom:calc(20px + var(--safe-bottom));display:flex;flex-direction:column;align-items:center;gap:14px;animation:slideUp .25s ease;}
@@ -149,10 +143,11 @@ select.form-input option{background:var(--bg3);}
 .modal-title{font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;}
 .modal-name{font-size:16px;font-weight:600;text-align:center;word-break:break-word;}
 .modal-meta{font-family:var(--mono);font-size:11px;color:var(--text2);text-align:center;line-height:1.6;}
-.qr-box{background:#fff;border-radius:12px;padding:14px;display:flex;align-items:center;justify-content:center;}
+.qr-box{background:#fff;border-radius:12px;padding:14px;}
 .modal-btns{display:flex;gap:10px;width:100%;}
 .modal-btns .btn{flex:1;padding:13px;font-size:14px;}
 .btn-qrprint{background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--accent);}
+
 #scan-overlay{position:fixed;inset:0;background:#000;z-index:200;display:none;flex-direction:column;}
 #scan-overlay.open{display:flex;}
 #scan-header{padding:16px;padding-top:calc(16px + var(--safe-top));display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,.6);position:absolute;top:0;left:0;right:0;z-index:2;}
@@ -173,11 +168,31 @@ select.form-input option{background:var(--bg3);}
 #scan-status.error{color:var(--red);}
 #scan-abort{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);color:#fff;padding:13px 32px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;width:100%;max-width:300px;}
 #scan-hint{font-size:12px;color:rgba(255,255,255,.4);margin-top:10px;font-family:var(--mono);}
+
+/* IMPORT MODAL */
+#import-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;}
+#import-box{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:28px 24px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:16px;animation:slideUp .3s ease;}
+#import-box h2{font-family:var(--mono);font-size:13px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;text-align:center;}
+#import-box p{font-size:14px;color:var(--text2);text-align:center;line-height:1.6;}
+.import-btns{display:flex;flex-direction:column;gap:10px;}
+.btn-import{background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--accent);}
+
 .toast{position:fixed;bottom:calc(var(--nav-h) + var(--safe-bottom) + 12px);left:12px;right:12px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:13px 16px;border-radius:12px;font-size:13px;font-family:var(--mono);opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none;z-index:300;display:flex;align-items:center;gap:8px;box-shadow:0 8px 32px rgba(0,0,0,.5);}
 .toast.show{opacity:1;transform:translateY(0);}
 .toast-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-@keyframes cardPulse{0%,100%{border-color:var(--border)}40%,60%{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,212,255,.2)}}
-.card-highlight{animation:cardPulse 1.6s ease;}
+
+/* 3x pulse highlight */
+@keyframes cardPulse3{
+  0%{border-color:var(--border);box-shadow:none;}
+  15%{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,212,255,.3);}
+  30%{border-color:var(--border);box-shadow:none;}
+  45%{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,212,255,.3);}
+  60%{border-color:var(--border);box-shadow:none;}
+  75%{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,212,255,.3);}
+  100%{border-color:var(--border);box-shadow:none;}
+}
+.card-highlight{animation:cardPulse3 1.8s ease;}
+
 ::-webkit-scrollbar{width:3px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
@@ -194,6 +209,13 @@ select.form-input option{background:var(--bg3);}
     </div>
   </header>
 
+  <!-- AREA TABS -->
+  <div class="area-tabs">
+    <div class="area-tab fertigung active" id="area-fertigung" onclick="switchArea('fertigung')">⚙ Fertigung</div>
+    <div class="area-tab buero" id="area-buero" onclick="switchArea('buero')">🖥 Büro</div>
+  </div>
+
+  <!-- SUB TABS -->
   <div class="tabs">
     <div class="tab active" id="tab-list" onclick="showTab('list')">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-2px;margin-right:4px"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
@@ -216,7 +238,7 @@ select.form-input option{background:var(--bg3);}
       <div class="search-area">
         <div class="search-wrap">
           <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          <input type="search" class="search-input" id="search" placeholder="Suchen…" oninput="renderCards()" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input type="search" class="search-input" id="search" placeholder="Suchen…" oninput="renderCards()" autocomplete="off" spellcheck="false">
         </div>
         <div class="filter-row">
           <button class="filter-chip active" onclick="setFilter('all',this)">Alle</button>
@@ -268,7 +290,7 @@ select.form-input option{background:var(--bg3);}
             <div class="row2">
               <div class="form-group">
                 <label class="form-label">Standort</label>
-                <input type="text" id="f-ort" class="form-input" placeholder="z.B. Büro 1" autocomplete="off">
+                <input type="text" id="f-ort" class="form-input" placeholder="z.B. Halle 1" autocomplete="off">
               </div>
               <div class="form-group">
                 <label class="form-label">Verantwortlicher</label>
@@ -343,6 +365,7 @@ select.form-input option{background:var(--bg3);}
   </nav>
 </div>
 
+<!-- QR MODAL -->
 <div class="modal-overlay" id="qr-overlay" onclick="if(event.target===this)closeQR()">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
@@ -363,6 +386,26 @@ select.form-input option{background:var(--bg3);}
   </div>
 </div>
 
+<!-- IMPORT MODAL -->
+<div id="import-overlay">
+  <div id="import-box">
+    <h2>// Dataimport</h2>
+    <p>Möchtest du eine vorhandene Prüfliste importieren?<br><span style="font-size:12px;color:var(--gray);">Excel (.xlsx) oder JSON-Datei</span></p>
+    <div class="import-btns">
+      <label class="btn btn-import" style="cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        Datei importieren
+        <input type="file" id="import-file" accept=".xlsx,.json" style="display:none" onchange="handleImport(this)">
+      </label>
+      <button class="btn btn-secondary" onclick="closeImport()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        Überspringen
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- SCANNER -->
 <div id="scan-overlay">
   <div id="scan-header">
     <h3>QR-Code scannen</h3>
@@ -371,10 +414,7 @@ select.form-input option{background:var(--bg3);}
     </button>
   </div>
   <video id="scan-video" autoplay playsinline muted></video>
-  <div id="scan-frame">
-    <div class="sf-br"></div>
-    <div id="scan-line"></div>
-  </div>
+  <div id="scan-frame"><div class="sf-br"></div><div id="scan-line"></div></div>
   <div id="scan-footer">
     <div id="scan-status">Kamera wird gestartet…</div>
     <button id="scan-abort" onclick="closeScanner()">Abbrechen</button>
@@ -388,79 +428,103 @@ select.form-input option{background:var(--bg3);}
 </div>
 
 <script>
-const STORAGE_KEY = 'dguv_v3_data';
+const STORAGE_KEY = 'dguv_v3_data_v2';
 const INTERVALS = {Monatlich:1,Vierteljährlich:3,Halbjährlich:6,Jährlich:12,"2-jährlich":24};
 
-const DEFAULT_DATA = [
-  {id:1,bez:"Bohrmaschine Makita",kat:"Handgeführtes Werkzeug",ort:"Werkstatt A",ver:"M. Müller",int:"Jährlich",last:"2024-03-15",pruefer:"P. Schmidt",bem:""},
-  {id:2,bez:"Verlängerungskabel 10m",kat:"Verlängerungskabel",ort:"Büro 1.OG",ver:"T. Weber",int:"Halbjährlich",last:"2024-09-01",pruefer:"P. Schmidt",bem:""},
-  {id:3,bez:"Schreibtischlampe B101",kat:"Ortsveränderliches Gerät",ort:"Büro 101",ver:"A. Bauer",int:"Jährlich",last:"2023-12-10",pruefer:"P. Schmidt",bem:"Termin vereinbaren"},
-  {id:4,bez:"Kaffeemaschine Kantine",kat:"Haushaltsgerät",ort:"Kantine",ver:"S. Koch",int:"Jährlich",last:"2025-01-20",pruefer:"P. Schmidt",bem:""},
-  {id:5,bez:"Schleifmaschine Bosch",kat:"Handgeführtes Werkzeug",ort:"Werkstatt B",ver:"M. Müller",int:"Halbjährlich",last:"2024-06-05",pruefer:"P. Schmidt",bem:"Dringend prüfen!"},
-];
+// Default data for both areas
+const DEFAULT = {
+  fertigung: [
+    {id:'WK-001',bez:"Bohrmaschine Makita",kat:"Handgeführtes Werkzeug",ort:"Werkstatt A",ver:"M. Müller",int:"Jährlich",last:"2024-03-15",pruefer:"P. Schmidt",bem:""},
+    {id:'WK-002',bez:"Schleifmaschine Bosch",kat:"Handgeführtes Werkzeug",ort:"Werkstatt B",ver:"M. Müller",int:"Halbjährlich",last:"2024-06-05",pruefer:"P. Schmidt",bem:"Dringend prüfen!"},
+    {id:'WK-003',bez:"Verlängerungskabel 10m",kat:"Verlängerungskabel",ort:"Halle 1",ver:"T. Weber",int:"Halbjährlich",last:"2024-09-01",pruefer:"P. Schmidt",bem:""},
+  ],
+  buero: [
+    {id:'BR-001',bez:"Schreibtischlampe B101",kat:"Ortsveränderliches Gerät",ort:"Büro 101",ver:"A. Bauer",int:"Jährlich",last:"2023-12-10",pruefer:"P. Schmidt",bem:"Termin vereinbaren"},
+    {id:'BR-002',bez:"Kaffeemaschine Kantine",kat:"Haushaltsgerät",ort:"Kantine",ver:"S. Koch",int:"Jährlich",last:"2025-01-20",pruefer:"P. Schmidt",bem:""},
+    {id:'BR-003',bez:"Drucker HP LaserJet",kat:"Bürogerät",ort:"Büro 202",ver:"K. Wagner",int:"2-jährlich",last:"2024-05-10",pruefer:"P. Schmidt",bem:""},
+  ]
+};
 
 function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(DEFAULT_DATA));
-  } catch(e) { return JSON.parse(JSON.stringify(DEFAULT_DATA)); }
+    return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(DEFAULT));
+  } catch(e) { return JSON.parse(JSON.stringify(DEFAULT)); }
 }
 function saveData() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(allData)); } catch(e) {}
 }
 
-let data = loadData();
-let activeFilter = "all";
+let allData = loadData();
+let currentArea = 'fertigung';
+let activeFilter = 'all';
 
-function nextDate(last, interval) {
-  if (!last || !INTERVALS[interval]) return null;
-  const d = new Date(last); d.setMonth(d.getMonth() + INTERVALS[interval]); return d;
+function data() { return allData[currentArea]; }
+
+function switchArea(area) {
+  currentArea = area;
+  document.getElementById('area-fertigung').classList.toggle('active', area==='fertigung');
+  document.getElementById('area-buero').classList.toggle('active', area==='buero');
+  document.getElementById('search').value = '';
+  activeFilter = 'all';
+  document.querySelectorAll('.filter-chip').forEach((b,i) => b.classList.toggle('active', i===0));
+  renderCards();
+  updateId();
+  showTab('list');
+}
+
+function nextDate(last,interval) {
+  if(!last||!INTERVALS[interval])return null;
+  const d=new Date(last);d.setMonth(d.getMonth()+INTERVALS[interval]);return d;
 }
 function calcStatus(nd) {
-  if (!nd) return "Offen";
-  const t = new Date(); t.setHours(0,0,0,0);
-  const s = new Date(t); s.setDate(s.getDate() + 30);
-  if (nd < t) return "Überfällig"; if (nd <= s) return "Fällig"; return "Bestanden";
+  if(!nd)return"Offen";
+  const t=new Date();t.setHours(0,0,0,0);
+  const s=new Date(t);s.setDate(s.getDate()+30);
+  if(nd<t)return"Überfällig";if(nd<=s)return"Fällig";return"Bestanden";
 }
-function fmt(d) { if (!d) return "—"; return d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"}); }
-function badgeCls(s) { return {Bestanden:"b-ok",Fällig:"b-warn",Überfällig:"b-err",Offen:"b-gray"}[s]||"b-gray"; }
+function fmt(d){if(!d)return"—";return d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"});}
+function badgeCls(s){return{Bestanden:"b-ok",Fällig:"b-warn",Überfällig:"b-err",Offen:"b-gray"}[s]||"b-gray";}
 
 function updateStats() {
-  const ss = data.map(r => calcStatus(nextDate(r.last, r.int)));
-  document.getElementById("s-total").textContent = data.length;
-  document.getElementById("s-ok").textContent = ss.filter(s => s==="Bestanden").length;
-  document.getElementById("s-warn").textContent = ss.filter(s => s==="Fällig"||s==="Überfällig").length;
-  document.getElementById("s-err").textContent = ss.filter(s => s==="Überfällig").length;
+  const ss = data().map(r=>calcStatus(nextDate(r.last,r.int)));
+  document.getElementById("s-total").textContent=data().length;
+  document.getElementById("s-ok").textContent=ss.filter(s=>s==="Bestanden").length;
+  document.getElementById("s-warn").textContent=ss.filter(s=>s==="Fällig"||s==="Überfällig").length;
+  document.getElementById("s-err").textContent=ss.filter(s=>s==="Überfällig").length;
 }
 
-function setFilter(f, btn) {
-  activeFilter = f;
-  document.querySelectorAll(".filter-chip").forEach(b => b.classList.remove("active"));
+function setFilter(f,btn) {
+  activeFilter=f;
+  document.querySelectorAll(".filter-chip").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active");
   renderCards();
 }
 
+function cardId(id) { return 'card-' + String(id).replace(/[^a-zA-Z0-9]/g,'_'); }
+
 function renderCards() {
-  const q = document.getElementById("search").value.toLowerCase();
-  const container = document.getElementById("cards-container");
-  const empty = document.getElementById("empty-state");
-  let rows = data.filter(r => {
-    const st = calcStatus(nextDate(r.last, r.int));
-    if (activeFilter !== "all" && st !== activeFilter) return false;
-    if (q && !Object.values(r).join(" ").toLowerCase().includes(q)) return false;
+  const q=document.getElementById("search").value.toLowerCase();
+  const container=document.getElementById("cards-container");
+  const empty=document.getElementById("empty-state");
+  let rows=data().filter(r=>{
+    const st=calcStatus(nextDate(r.last,r.int));
+    if(activeFilter!=='all'&&st!==activeFilter)return false;
+    if(q&&!Object.values(r).join(" ").toLowerCase().includes(q))return false;
     return true;
   });
-  if (!rows.length) { container.innerHTML = ""; empty.style.display = "flex"; updateStats(); return; }
-  empty.style.display = "none";
-  container.innerHTML = rows.map(r => {
-    const nd = nextDate(r.last, r.int);
-    const st = calcStatus(nd);
-    const ndClr = st==="Überfällig"?"color:var(--red)":st==="Fällig"?"color:var(--orange)":"color:var(--text)";
-    return `<div class="card" id="card-${r.id}">
+  if(!rows.length){container.innerHTML="";empty.style.display="flex";updateStats();return;}
+  empty.style.display="none";
+  container.innerHTML=rows.map(r=>{
+    const nd=nextDate(r.last,r.int);
+    const st=calcStatus(nd);
+    const ndClr=st==="Überfällig"?"color:var(--red)":st==="Fällig"?"color:var(--orange)":"color:var(--text)";
+    const cid=cardId(r.id);
+    return `<div class="card" id="${cid}">
       <div class="card-top">
         <div class="card-header">
           <div class="card-name">${r.bez}</div>
-          <div class="card-id">#${String(r.id).padStart(3,"0")}</div>
+          <div class="card-id">${r.id}</div>
         </div>
         <div class="card-meta">
           <span class="badge ${badgeCls(st)}">${st}</span>
@@ -473,17 +537,17 @@ function renderCards() {
         Prüfer: <span>${r.pruefer||"—"}</span>&nbsp;·&nbsp;Intervall: <span>${r.int}</span>
       </div>
       <div class="card-dates">
-        <div class="card-date-item"><div class="card-date-lbl">Letzte Prüfung</div><div class="card-date-val">${r.last?fmt(new Date(r.last)):"—"}</div></div>
-        <div class="card-date-item"><div class="card-date-lbl">Nächste Prüfung</div><div class="card-date-val" style="${ndClr}">${fmt(nd)}</div></div>
+        <div><div class="card-date-lbl">Letzte Prüfung</div><div class="card-date-val">${r.last?fmt(new Date(r.last)):"—"}</div></div>
+        <div><div class="card-date-lbl">Nächste Prüfung</div><div class="card-date-val" style="${ndClr}">${fmt(nd)}</div></div>
       </div>
       <div class="card-actions">
-        <button class="card-action-btn qr" onclick="openQR(${r.id})">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="15.5" y="15.5" width="2" height="2"/><rect x="19" y="15.5" width="2" height="2"/><rect x="15.5" y="19" width="2" height="2"/><rect x="19" y="19" width="2" height="2"/></svg>QR-Code
+        <button class="card-action-btn qr" onclick="openQR('${r.id}')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="15.5" y="15.5" width="2" height="2"/><rect x="19" y="15.5" width="2" height="2"/><rect x="15.5" y="19" width="2" height="2"/><rect x="19" y="19" width="2" height="2"/></svg>QR
         </button>
-        <button class="card-action-btn edit" onclick="editEntry(${r.id})">
+        <button class="card-action-btn edit" onclick="editEntry('${r.id}')">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Bearbeiten
         </button>
-        <button class="card-action-btn del" onclick="del(${r.id})">
+        <button class="card-action-btn del" onclick="del('${r.id}')">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Löschen
         </button>
       </div>
@@ -493,145 +557,195 @@ function renderCards() {
 }
 
 function showTab(t) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  document.querySelectorAll(".tab").forEach(s => s.classList.remove("active"));
-  document.querySelectorAll(".nav-item:not(.nav-scan)").forEach(s => s.classList.remove("active"));
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll(".nav-item:not(.nav-scan)").forEach(s=>s.classList.remove("active"));
   document.getElementById("screen-"+t).classList.add("active");
   document.getElementById("tab-"+t).classList.add("active");
   document.getElementById("nav-"+t).classList.add("active");
 }
 
 function updateNextPreview() {
-  const nd = nextDate(document.getElementById("f-last").value, document.getElementById("f-int").value);
-  document.getElementById("f-next").value = nd ? fmt(nd) : "";
+  const nd=nextDate(document.getElementById("f-last").value,document.getElementById("f-int").value);
+  document.getElementById("f-next").value=nd?fmt(nd):"";
 }
-document.getElementById("f-last").addEventListener("change", updateNextPreview);
-document.getElementById("f-int").addEventListener("change", updateNextPreview);
+document.getElementById("f-last").addEventListener("change",updateNextPreview);
+document.getElementById("f-int").addEventListener("change",updateNextPreview);
 
 function updateId() {
-  const nid = data.length ? Math.max(...data.map(d => d.id)) + 1 : 1;
-  document.getElementById("f-id").value = "#" + String(nid).padStart(3,"0");
+  const prefix = currentArea==='fertigung'?'WK':'BR';
+  const existing = data().map(d=>d.id).filter(id=>id.startsWith(prefix+'-'));
+  let maxNum = 0;
+  existing.forEach(id=>{const n=parseInt(id.split('-')[1]);if(n>maxNum)maxNum=n;});
+  document.getElementById("f-id").value = prefix+'-'+String(maxNum+1).padStart(3,'0');
 }
 
-function setErr(id, on) { document.getElementById(id).style.borderColor = on ? "var(--red)" : ""; }
-
-let _editId = null;
+function setErr(id,on){document.getElementById(id).style.borderColor=on?"var(--red)":"";}
+let _editId=null;
 
 function editEntry(id) {
-  const r = data.find(d => d.id === id); if (!r) return;
-  _editId = id;
-  document.getElementById("f-id").value = "#" + String(r.id).padStart(3,"0");
-  document.getElementById("f-bez").value = r.bez;
-  document.getElementById("f-kat").value = r.kat;
-  document.getElementById("f-ort").value = r.ort||"";
-  document.getElementById("f-ver").value = r.ver||"";
-  document.getElementById("f-int").value = r.int;
-  document.getElementById("f-last").value = r.last||"";
-  document.getElementById("f-pruefer").value = r.pruefer||"";
-  document.getElementById("f-bem").value = r.bem||"";
+  const r=data().find(d=>d.id===id);if(!r)return;
+  _editId=id;
+  document.getElementById("f-id").value=r.id;
+  document.getElementById("f-bez").value=r.bez;
+  document.getElementById("f-kat").value=r.kat;
+  document.getElementById("f-ort").value=r.ort||"";
+  document.getElementById("f-ver").value=r.ver||"";
+  document.getElementById("f-int").value=r.int;
+  document.getElementById("f-last").value=r.last||"";
+  document.getElementById("f-pruefer").value=r.pruefer||"";
+  document.getElementById("f-bem").value=r.bem||"";
   updateNextPreview();
   document.getElementById("edit-banner").classList.remove("hidden");
-  document.getElementById("edit-banner-text").textContent = "Prüfling #" + String(r.id).padStart(3,"0") + " – " + r.bez;
-  document.getElementById("form-section-title").textContent = "// Eintrag bearbeiten";
+  document.getElementById("edit-banner-text").textContent="Prüfling "+r.id+" – "+r.bez;
+  document.getElementById("form-section-title").textContent="// Eintrag bearbeiten";
   document.getElementById("form-section-title").classList.add("edit-mode");
-  document.getElementById("btn-save").style.background = "var(--orange)";
-  document.getElementById("btn-save-label").textContent = "Änderungen speichern";
+  document.getElementById("btn-save").style.background="var(--orange)";
+  document.getElementById("btn-save-label").textContent="Änderungen speichern";
   showTab("form");
-  setTimeout(() => document.getElementById("screen-form").scrollTo({top:0,behavior:"smooth"}), 50);
 }
 
 function cancelEdit() {
-  _editId = null; clearForm();
+  _editId=null;clearForm();
   document.getElementById("edit-banner").classList.add("hidden");
-  document.getElementById("form-section-title").textContent = "// Grunddaten";
+  document.getElementById("form-section-title").textContent="// Grunddaten";
   document.getElementById("form-section-title").classList.remove("edit-mode");
-  document.getElementById("btn-save").style.background = "";
-  document.getElementById("btn-save-label").textContent = "Prüfling anlegen";
+  document.getElementById("btn-save").style.background="";
+  document.getElementById("btn-save-label").textContent="Prüfling anlegen";
 }
 
 function saveEntry() {
-  const bez = document.getElementById("f-bez").value.trim();
-  const kat = document.getElementById("f-kat").value;
-  const int = document.getElementById("f-int").value;
-  const last = document.getElementById("f-last").value;
-  const pruefer = document.getElementById("f-pruefer").value.trim();
-  setErr("f-bez",!bez); setErr("f-kat",!kat); setErr("f-int",!int); setErr("f-last",!last); setErr("f-pruefer",!pruefer);
-  if (!bez) { toast("Bezeichnung fehlt!","var(--red)"); return; }
-  if (!kat) { toast("Kategorie wählen!","var(--red)"); return; }
-  if (!int) { toast("Prüfintervall wählen!","var(--red)"); return; }
-  if (!last) { toast("Letzte Prüfung fehlt!","var(--red)"); return; }
-  if (!pruefer) { toast("Prüfer ist Pflichtfeld!","var(--red)"); return; }
-  const ort = document.getElementById("f-ort").value.trim();
-  const ver = document.getElementById("f-ver").value.trim();
-  const bem = document.getElementById("f-bem").value.trim();
-  if (_editId !== null) {
-    const idx = data.findIndex(d => d.id === _editId);
-    if (idx !== -1) data[idx] = {id:_editId, bez, kat, ort, ver, int, last, pruefer, bem};
-    const savedId = _editId;
-    cancelEdit(); saveData(); renderCards();
-    toast("Prüfling #" + String(savedId).padStart(3,"0") + " aktualisiert","var(--orange)");
+  const bez=document.getElementById("f-bez").value.trim();
+  const kat=document.getElementById("f-kat").value;
+  const int=document.getElementById("f-int").value;
+  const last=document.getElementById("f-last").value;
+  const pruefer=document.getElementById("f-pruefer").value.trim();
+  setErr("f-bez",!bez);setErr("f-kat",!kat);setErr("f-int",!int);setErr("f-last",!last);setErr("f-pruefer",!pruefer);
+  if(!bez){toast("Bezeichnung fehlt!","var(--red)");return;}
+  if(!kat){toast("Kategorie wählen!","var(--red)");return;}
+  if(!int){toast("Prüfintervall wählen!","var(--red)");return;}
+  if(!last){toast("Letzte Prüfung fehlt!","var(--red)");return;}
+  if(!pruefer){toast("Prüfer ist Pflichtfeld!","var(--red)");return;}
+  const ort=document.getElementById("f-ort").value.trim();
+  const ver=document.getElementById("f-ver").value.trim();
+  const bem=document.getElementById("f-bem").value.trim();
+  if(_editId!==null) {
+    const idx=allData[currentArea].findIndex(d=>d.id===_editId);
+    if(idx!==-1)allData[currentArea][idx]={id:_editId,bez,kat,ort,ver,int,last,pruefer,bem};
+    const sid=_editId;cancelEdit();saveData();renderCards();
+    toast("Prüfling "+sid+" aktualisiert","var(--orange)");
     showTab("list");
-    setTimeout(() => {
-      const card = document.getElementById("card-"+savedId);
-      if (card) { card.scrollIntoView({behavior:"smooth",block:"center"}); card.classList.add("card-highlight"); setTimeout(()=>card.classList.remove("card-highlight"),1800); }
-    }, 100);
+    setTimeout(()=>{highlightCard(sid);},100);
   } else {
-    const newId = data.length ? Math.max(...data.map(d=>d.id))+1 : 1;
-    data.push({id:newId, bez, kat, ort, ver, int, last, pruefer, bem});
-    clearForm(); saveData(); renderCards();
-    toast("Prüfling #" + String(newId).padStart(3,"0") + " angelegt","var(--green)");
+    const prefix=currentArea==='fertigung'?'WK':'BR';
+    const existing=allData[currentArea].map(d=>d.id).filter(id=>id.startsWith(prefix+'-'));
+    let maxNum=0;existing.forEach(id=>{const n=parseInt(id.split('-')[1]);if(n>maxNum)maxNum=n;});
+    const newId=prefix+'-'+String(maxNum+1).padStart(3,'0');
+    allData[currentArea].push({id:newId,bez,kat,ort,ver,int,last,pruefer,bem});
+    clearForm();saveData();renderCards();
+    toast("Prüfling "+newId+" angelegt","var(--green)");
     showTab("list");
-    setTimeout(() => {
-      const card = document.getElementById("card-"+newId);
-      if (card) card.scrollIntoView({behavior:"smooth",block:"center"});
-    }, 100);
+    setTimeout(()=>{
+      const card=document.getElementById(cardId(newId));
+      if(card)card.scrollIntoView({behavior:"smooth",block:"center"});
+    },100);
   }
 }
 
+function highlightCard(id) {
+  const card=document.getElementById(cardId(id));
+  if(!card)return;
+  card.scrollIntoView({behavior:"smooth",block:"center"});
+  card.classList.remove("card-highlight");
+  void card.offsetWidth;
+  card.classList.add("card-highlight");
+  setTimeout(()=>card.classList.remove("card-highlight"),1900);
+}
+
 function clearForm() {
-  _editId = null;
-  ["f-bez","f-kat","f-ort","f-ver","f-int","f-last","f-pruefer","f-bem","f-next"].forEach(id => {
-    const el = document.getElementById(id);
-    if (el.tagName==="SELECT") el.selectedIndex=0; else el.value="";
+  _editId=null;
+  ["f-bez","f-kat","f-ort","f-ver","f-int","f-last","f-pruefer","f-bem","f-next"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el.tagName==="SELECT")el.selectedIndex=0;else el.value="";
     el.style.borderColor="";
   });
   document.getElementById("edit-banner").classList.add("hidden");
-  document.getElementById("form-section-title").textContent = "// Grunddaten";
+  document.getElementById("form-section-title").textContent="// Grunddaten";
   document.getElementById("form-section-title").classList.remove("edit-mode");
-  document.getElementById("btn-save").style.background = "";
-  document.getElementById("btn-save-label").textContent = "Prüfling anlegen";
+  document.getElementById("btn-save").style.background="";
+  document.getElementById("btn-save-label").textContent="Prüfling anlegen";
   updateId();
 }
 
 function del(id) {
-  if (!confirm("Prüfling #"+String(id).padStart(3,"0")+" löschen?")) return;
-  data = data.filter(r => r.id !== id);
-  saveData(); renderCards(); updateId();
+  if(!confirm("Prüfling "+id+" löschen?"))return;
+  allData[currentArea]=allData[currentArea].filter(r=>r.id!==id);
+  saveData();renderCards();updateId();
   toast("Prüfling gelöscht","var(--orange)");
 }
 
-function toast(msg, color) {
-  const t = document.getElementById("toast");
-  document.getElementById("toast-msg").textContent = msg;
-  document.getElementById("toast-dot").style.background = color;
+function toast(msg,color) {
+  const t=document.getElementById("toast");
+  document.getElementById("toast-msg").textContent=msg;
+  document.getElementById("toast-dot").style.background=color;
   t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 2800);
+  setTimeout(()=>t.classList.remove("show"),2800);
 }
 
 function exportExcel() {
-  const rows = data.map(r => {
-    const nd = nextDate(r.last, r.int);
-    return {"ID":r.id,"Bezeichnung":r.bez,"Kategorie":r.kat,"Standort":r.ort,
-      "Verantwortlicher":r.ver,"Prüfintervall":r.int,
-      "Letzte Prüfung":r.last?fmt(new Date(r.last)):"",
-      "Nächste Prüfung":fmt(nd),"Status":calcStatus(nd),"Prüfer":r.pruefer,"Bemerkung":r.bem};
+  const rows=data().map(r=>{
+    const nd=nextDate(r.last,r.int);
+    return{"ID":r.id,"Bezeichnung":r.bez,"Kategorie":r.kat,"Standort":r.ort,"Verantwortlicher":r.ver,"Prüfintervall":r.int,"Letzte Prüfung":r.last?fmt(new Date(r.last)):"",'Nächste Prüfung':fmt(nd),"Status":calcStatus(nd),"Prüfer":r.pruefer,"Bemerkung":r.bem};
   });
-  const ws = XLSX.utils.json_to_sheet(rows);
-  ws["!cols"] = [6,26,22,18,20,16,14,14,14,18,24].map(w=>({wch:w}));
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Prüflinge");
-  XLSX.writeFile(wb, "DGUV_V3_"+new Date().toISOString().slice(0,10)+".xlsx");
+  const ws=XLSX.utils.json_to_sheet(rows);
+  ws["!cols"]=[10,26,22,18,20,16,14,14,14,18,24].map(w=>({wch:w}));
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,currentArea==='fertigung'?'Fertigung':'Büro');
+  XLSX.writeFile(wb,"DGUV_V3_"+currentArea+"_"+new Date().toISOString().slice(0,10)+".xlsx");
   toast("Excel heruntergeladen","var(--green)");
+}
+
+/* IMPORT */
+function closeImport() {
+  document.getElementById('import-overlay').style.display='none';
+}
+function handleImport(input) {
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  if(file.name.endsWith('.json')) {
+    reader.onload=e=>{
+      try {
+        const imported=JSON.parse(e.target.result);
+        if(imported.fertigung||imported.buero) {
+          if(imported.fertigung)allData.fertigung=imported.fertigung;
+          if(imported.buero)allData.buero=imported.buero;
+        } else if(Array.isArray(imported)) {
+          allData[currentArea]=imported;
+        }
+        saveData();renderCards();closeImport();
+        toast("Import erfolgreich!","var(--green)");
+      } catch(err){toast("Fehler beim Import","var(--red)");}
+    };
+    reader.readAsText(file);
+  } else {
+    reader.onload=e=>{
+      try {
+        const wb=XLSX.read(e.target.result,{type:'array'});
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        const rows=XLSX.utils.sheet_to_json(ws);
+        const imported=rows.map(r=>({
+          id:r['ID']||r['id']||'',
+          bez:r['Bezeichnung']||'',kat:r['Kategorie']||'',ort:r['Standort']||'',
+          ver:r['Verantwortlicher']||'',int:r['Prüfintervall']||'Jährlich',
+          last:r['Letzte Prüfung']||'',pruefer:r['Prüfer']||'',bem:r['Bemerkung']||''
+        })).filter(r=>r.bez);
+        allData[currentArea]=imported;
+        saveData();renderCards();closeImport();
+        toast(imported.length+" Prüflinge importiert","var(--green)");
+      } catch(err){toast("Fehler beim Excel-Import","var(--red)");}
+    };
+    reader.readAsArrayBuffer(file);
+  }
 }
 
 /* QR ENGINE */
@@ -675,16 +789,16 @@ function buildMatrix(text){
   return mat;
 }
 
-let _currentQR = null;
+let _currentQR=null;
 function openQR(id) {
-  const r = data.find(d => d.id === id); if (!r) return;
-  _currentQR = r;
-  const nd = nextDate(r.last, r.int);
-  document.getElementById("qr-title").textContent = r.bez;
-  document.getElementById("qr-meta").innerHTML = `#${String(r.id).padStart(3,"0")} · ${r.kat}<br>Prüfer: ${r.pruefer||"—"} · Nächste: ${fmt(nd)}`;
-  const canvas = document.getElementById("qr-canvas");
-  const ctx = canvas.getContext("2d");
-  const text = ["DGUV V3","ID:"+String(r.id).padStart(3,"0"),"BEZ:"+r.bez,"KAT:"+r.kat,"ORT:"+(r.ort||"-"),"PRUEFER:"+(r.pruefer||"-"),"LAST:"+(r.last?fmt(new Date(r.last)):"-"),"NEXT:"+fmt(nd),"INT:"+r.int].join("|");
+  const r=data().find(d=>d.id===id);if(!r)return;
+  _currentQR=r;
+  const nd=nextDate(r.last,r.int);
+  document.getElementById("qr-title").textContent=r.bez;
+  document.getElementById("qr-meta").innerHTML=`${r.id} · ${r.kat}<br>Prüfer: ${r.pruefer||"—"} · Nächste: ${fmt(nd)}`;
+  const canvas=document.getElementById("qr-canvas");
+  const ctx=canvas.getContext("2d");
+  const text=["DGUV V3","ID:"+r.id,"BEZ:"+r.bez,"KAT:"+r.kat,"ORT:"+(r.ort||"-"),"PRUEFER:"+(r.pruefer||"-"),"LAST:"+(r.last?fmt(new Date(r.last)):"-"),"NEXT:"+fmt(nd),"INT:"+r.int].join("|");
   try {
     const mat=buildMatrix(text),S=canvas.width,cells=mat.length,cs=S/cells;
     ctx.fillStyle="#fff";ctx.fillRect(0,0,S,S);ctx.fillStyle="#000";
@@ -692,16 +806,16 @@ function openQR(id) {
   } catch(e){ctx.fillStyle="#fff";ctx.fillRect(0,0,200,200);}
   document.getElementById("qr-overlay").classList.add("open");
 }
-function closeQR() { document.getElementById("qr-overlay").classList.remove("open"); }
+function closeQR(){document.getElementById("qr-overlay").classList.remove("open");}
 
 function printQRCode() {
-  if (!_currentQR) return;
-  const r=_currentQR, nd=nextDate(r.last,r.int);
+  if(!_currentQR)return;
+  const r=_currentQR,nd=nextDate(r.last,r.int);
   const img=document.getElementById("qr-canvas").toDataURL("image/png");
   const w=window.open("","_blank","width=460,height=620");
   w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>QR ${r.bez}</title>
   <style>body{font-family:Arial,sans-serif;display:flex;flex-direction:column;align-items:center;padding:32px 24px;background:#fff;color:#111;}h2{margin:0 0 4px;font-size:15px;}p.id{font-size:12px;color:#666;margin:0 0 18px;}img{border:1px solid #ddd;border-radius:4px;padding:10px;margin-bottom:18px;}table{border-collapse:collapse;width:100%;max-width:340px;font-size:12px;}td{padding:5px 8px;border-bottom:1px solid #eee;}td:first-child{color:#888;width:130px;}.foot{margin-top:24px;font-size:10px;color:#bbb;}</style></head><body>
-  <h2>${r.bez}</h2><p class="id">DGUV V3 · #${String(r.id).padStart(3,"0")}</p>
+  <h2>${r.bez}</h2><p class="id">DGUV V3 · ${r.id}</p>
   <img src="${img}" width="200" height="200">
   <table>
     <tr><td>Kategorie</td><td>${r.kat}</td></tr><tr><td>Standort</td><td>${r.ort||"—"}</td></tr>
@@ -721,12 +835,12 @@ function openScanner(){
   document.getElementById("scan-overlay").classList.add("open");
   navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}}})
     .then(s=>{_stream=s;const v=document.getElementById("scan-video");v.srcObject=s;v.play();v.onloadedmetadata=()=>{setScanSt("QR-Code vor die Kamera halten…","");scanLoop();};})
-    .catch(e=>setScanSt("Kamerazugriff verweigert","error"));
+    .catch(()=>setScanSt("Kamerazugriff verweigert","error"));
 }
 function closeScanner(){
   if(_raf){cancelAnimationFrame(_raf);_raf=null;}
   if(_stream){_stream.getTracks().forEach(t=>t.stop());_stream=null;}
-  const v=document.getElementById("scan-video");v.srcObject=null;
+  document.getElementById("scan-video").srcObject=null;
   document.getElementById("scan-overlay").classList.remove("open");
 }
 function setScanSt(msg,cls){const el=document.getElementById("scan-status");el.textContent=msg;el.className=cls||"";}
@@ -740,170 +854,127 @@ function scanLoop(){
   if(res&&res.data){_done=true;setScanSt("✓ Erkannt!","found");setTimeout(()=>{closeScanner();handleQR(res.data);},500);}
   else{_raf=requestAnimationFrame(scanLoop);}
 }
-function handleQR(text){
-  const m=text.match(/ID\s*[:]\s*#?(\d+)/i);
+
+function handleQR(text) {
+  // Suche ID im QR-Text: ID:WK-001 oder ID:BR-002 etc.
+  const m=text.match(/ID:([A-Z]{2}-\d+)/i);
   if(!m){toast("Kein DGUV-V3-Code erkannt","var(--orange)");return;}
-  const id=parseInt(m[1],10);const rec=data.find(d=>d.id===id);
-  if(!rec){toast("Prüfling #"+String(id).padStart(3,"0")+" nicht gefunden","var(--red)");return;}
-  activeFilter="all";document.querySelectorAll(".filter-chip").forEach(b=>b.classList.remove("active"));document.querySelector(".filter-chip").classList.add("active");document.getElementById("search").value="";
-  renderCards();showTab("list");
+  const qrId=m[1].toUpperCase();
+
+  // Bestimme Bereich anhand des Präfixes
+  let targetArea=null;
+  if(qrId.startsWith('WK-'))targetArea='fertigung';
+  else if(qrId.startsWith('BR-'))targetArea='buero';
+
+  // Suche in beiden Bereichen falls kein Präfix erkannt
+  if(!targetArea){
+    if(allData.fertigung.find(d=>d.id===qrId))targetArea='fertigung';
+    else if(allData.buero.find(d=>d.id===qrId))targetArea='buero';
+  }
+
+  if(!targetArea||!allData[targetArea].find(d=>d.id===qrId)){
+    toast("Prüfling "+qrId+" nicht gefunden","var(--red)");return;
+  }
+
+  // Zum richtigen Bereich wechseln
+  if(currentArea!==targetArea)switchArea(targetArea);
+
+  activeFilter='all';
+  document.querySelectorAll(".filter-chip").forEach((b,i)=>b.classList.toggle('active',i===0));
+  document.getElementById("search").value="";
+  renderCards();
+  showTab("list");
+
   setTimeout(()=>{
-    const card=document.getElementById("card-"+id);
-    if(card){card.scrollIntoView({behavior:"smooth",block:"center"});card.classList.add("card-highlight");setTimeout(()=>card.classList.remove("card-highlight"),1800);}
-    toast("Gefunden: "+rec.bez,"var(--green)");
-  },80);
+    highlightCard(qrId);
+    toast("Gefunden: "+allData[targetArea].find(d=>d.id===qrId).bez,"var(--green)");
+  },100);
 }
 
-updateId();
-renderCards();
+/* PWA MANIFEST */
+const manifest={name:"DGUV V3 Prüfverwaltung",short_name:"DGUV V3",start_url:"./",display:"standalone",orientation:"portrait",background_color:"#0d0f14",theme_color:"#0d0f14",icons:[{src:"data:image/svg+xml;base64,"+btoa(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='28' fill='%230d0f14'/><polygon points='112,20 60,100 96,100 80,172 140,88 104,88 148,20' fill='%2300d4ff'/></svg>`),sizes:"192x192",type:"image/svg+xml"}]};
+const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+document.getElementById('pwa-manifest').href=URL.createObjectURL(blob);
 
-// ── INTRO ANIMATION ──
-(function(){
-  const overlay = document.createElement('div');
-  overlay.style.cssText = `position:fixed;inset:0;background:#000;z-index:9999;display:flex;align-items:center;justify-content:center;overflow:hidden;`;
-
-  const logo = document.createElement('div');
-  logo.style.cssText = `font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:700;color:#00d4ff;letter-spacing:.1em;opacity:0;transition:opacity .2s;z-index:2;position:relative;text-shadow:0 0 30px #00d4ff,0 0 60px #00d4ff;`;
-  logo.innerHTML = 'DGUV<span style="color:#8892a4;font-weight:400">/V3</span>';
-
-  // SVG lightning bolt
-  const boltSvg = document.createElementNS('http://www.w3.org/2000/svg','svg');
-  boltSvg.setAttribute('viewBox','0 0 80 160');
-  boltSvg.style.cssText = `position:absolute;width:80px;height:160px;z-index:3;opacity:0;filter:drop-shadow(0 0 18px #fff) drop-shadow(0 0 40px #00d4ff);`;
-  boltSvg.innerHTML = `<polygon points="48,0 18,80 40,80 32,160 62,70 40,70 68,0" fill="white"/>`;
-
-  overlay.appendChild(logo);
-  overlay.appendChild(boltSvg);
-  document.body.appendChild(overlay);
-
-  // Thunder sound via Web Audio
-  function thunder() {
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const buf = ctx.createBuffer(1, ctx.sampleRate * 2.5, ctx.sampleRate);
-      const d = buf.getChannelData(0);
-      for (let i = 0; i < d.length; i++) {
-        const t = i / ctx.sampleRate;
-        const env = t < 0.08 ? t/0.08 : Math.exp(-(t-0.08)*2.2);
-        d[i] = (Math.random()*2-1) * env * (1 + 0.5*Math.sin(t*18));
-      }
-      const src = ctx.createBufferSource();
-      src.buffer = buf;
-      const gain = ctx.createGain(); gain.gain.value = 1.1;
-      const lo = ctx.createBiquadFilter(); lo.type='lowpass'; lo.frequency.value=320;
-      src.connect(lo); lo.connect(gain); gain.connect(ctx.destination);
-      src.start();
-    } catch(e){}
-  }
-
-  // Flash helper
-  function flash(opacity, dur) {
-    return new Promise(res => {
-      boltSvg.style.transition = `opacity ${dur}ms`;
-      boltSvg.style.opacity = opacity;
-      overlay.style.background = opacity > 0 ? `rgba(180,220,255,${opacity*0.18})` : '#000';
-      setTimeout(res, dur);
-    });
-  }
-
-  // Sequence
-  async function run() {
-    await new Promise(r => setTimeout(r, 80));
-
-    // Flash 1 – quick
-    await flash(1, 40);
-    thunder();
-    await flash(0, 60);
-    await new Promise(r => setTimeout(r, 90));
-
-    // Flash 2 – double
-    await flash(0.85, 30);
-    await flash(0, 40);
-    await new Promise(r => setTimeout(r, 50));
-    await flash(1, 25);
-    await flash(0, 80);
-    await new Promise(r => setTimeout(r, 120));
-
-    // Flash 3 – big sustained
-    await flash(1, 20);
-    await new Promise(r => setTimeout(r, 60));
-
-    // Logo appears during flash
-    logo.style.opacity = '1';
-    await new Promise(r => setTimeout(r, 80));
-    await flash(0, 200);
-
-    // Hold logo
-    await new Promise(r => setTimeout(r, 500));
-
-    // Fade out overlay
-    overlay.style.transition = 'opacity .4s';
-    overlay.style.opacity = '0';
-    await new Promise(r => setTimeout(r, 420));
-    overlay.remove();
-  }
-
-  run();
-})();
-
-// ── SERVICE WORKER (Offline) ──
-if ('serviceWorker' in navigator) {
-  const swCode = `
-const CACHE = 'dguv-v3-v1';
-const URLS = [
-  'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
-  'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js'
-];
-self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(URLS).catch(()=>{})));
-  self.skipWaiting();
-});
-self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
-  self.clients.claim();
-});
-self.addEventListener('fetch', e => {
-  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).catch(()=>new Response('Offline',{status:503}))));
-});
-  `;
-  const swBlob = new Blob([swCode], {type:'application/javascript'});
+/* SERVICE WORKER */
+if('serviceWorker' in navigator){
+  const swCode=`const CACHE='dguv-v3-v2';self.addEventListener('install',e=>{self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim();});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));});`;
+  const swBlob=new Blob([swCode],{type:'application/javascript'});
   navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
 }
 
-// ── INSTALL BANNER ──
-let _deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  _deferredPrompt = e;
-  showInstallBanner();
-});
-
-function showInstallBanner() {
-  if (document.getElementById('install-banner')) return;
-  const banner = document.createElement('div');
-  banner.id = 'install-banner';
-  banner.style.cssText = `position:fixed;bottom:calc(64px + env(safe-area-inset-bottom,0px) + 60px);left:12px;right:12px;background:#13161d;border:1px solid #2e3545;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;z-index:400;box-shadow:0 8px 32px rgba(0,0,0,.6);animation:slideUp .3s ease;`;
-  banner.innerHTML = `
-    <svg width="32" height="32" viewBox="0 0 192 192" style="flex-shrink:0;border-radius:8px;background:#0d0f14;padding:4px"><polygon points="112,20 60,100 96,100 80,172 140,88 104,88 148,20" fill="#00d4ff"/></svg>
-    <div style="flex:1">
-      <div style="font-size:13px;font-weight:600;color:#e8ecf4">App installieren</div>
-      <div style="font-size:11px;color:#8892a4;font-family:'IBM Plex Mono',monospace;margin-top:2px">Zum Startbildschirm hinzufügen</div>
-    </div>
-    <button onclick="installApp()" style="background:#00d4ff;color:#000;border:none;padding:9px 16px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">Installieren</button>
-    <button onclick="document.getElementById('install-banner').remove()" style="background:none;border:none;color:#5a6480;cursor:pointer;padding:4px;font-size:18px;line-height:1">✕</button>
-  `;
+/* INSTALL BANNER */
+let _deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();_deferredPrompt=e;showInstallBanner();});
+function showInstallBanner(){
+  if(document.getElementById('install-banner'))return;
+  const banner=document.createElement('div');
+  banner.id='install-banner';
+  banner.style.cssText=`position:fixed;bottom:calc(64px + env(safe-area-inset-bottom,0px) + 60px);left:12px;right:12px;background:#13161d;border:1px solid #2e3545;border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;z-index:400;box-shadow:0 8px 32px rgba(0,0,0,.6);`;
+  banner.innerHTML=`<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#e8ecf4">App installieren</div><div style="font-size:11px;color:#8892a4;font-family:monospace;margin-top:2px">Zum Startbildschirm hinzufügen</div></div><button onclick="installApp()" style="background:#00d4ff;color:#000;border:none;padding:9px 16px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer">Installieren</button><button onclick="document.getElementById('install-banner').remove()" style="background:none;border:none;color:#5a6480;cursor:pointer;padding:4px;font-size:18px">✕</button>`;
   document.body.appendChild(banner);
 }
+function installApp(){if(!_deferredPrompt)return;_deferredPrompt.prompt();_deferredPrompt.userChoice.then(()=>{_deferredPrompt=null;const b=document.getElementById('install-banner');if(b)b.remove();});}
 
-function installApp() {
-  if (!_deferredPrompt) return;
-  _deferredPrompt.prompt();
-  _deferredPrompt.userChoice.then(() => {
-    _deferredPrompt = null;
-    const b = document.getElementById('install-banner');
-    if (b) b.remove();
-  });
-}
+/* INTRO ANIMATION */
+(function(){
+  const overlay=document.createElement('div');
+  overlay.style.cssText=`position:fixed;inset:0;background:#000;z-index:9999;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;`;
+  const logo=document.createElement('div');
+  logo.style.cssText=`font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:700;color:#00d4ff;letter-spacing:.1em;opacity:0;transition:opacity .2s;z-index:2;position:relative;text-shadow:0 0 30px #00d4ff,0 0 60px #00d4ff;`;
+  logo.innerHTML='DGUV<span style="color:#8892a4;font-weight:400">/V3</span>';
+  const boltSvg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  boltSvg.setAttribute('viewBox','0 0 80 160');
+  boltSvg.style.cssText=`position:absolute;width:80px;height:160px;z-index:3;opacity:0;filter:drop-shadow(0 0 18px #fff) drop-shadow(0 0 40px #00d4ff);`;
+  boltSvg.innerHTML=`<polygon points="48,0 18,80 40,80 32,160 62,70 40,70 68,0" fill="white"/>`;
+  const hint=document.createElement('div');
+  hint.style.cssText=`position:absolute;bottom:80px;left:0;right:0;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:13px;color:rgba(255,255,255,.5);letter-spacing:.08em;`;
+  hint.textContent='TIPPEN ZUM STARTEN';
+  const hs=document.createElement('style');
+  hs.textContent='@keyframes hint-pulse{0%,100%{opacity:.3}50%{opacity:.8}}.hint-anim{animation:hint-pulse 1.2s ease-in-out infinite;}';
+  document.head.appendChild(hs);
+  hint.classList.add('hint-anim');
+  overlay.appendChild(logo);overlay.appendChild(boltSvg);overlay.appendChild(hint);
+  document.body.appendChild(overlay);
+
+  function thunder(){
+    try{
+      const ctx=new(window.AudioContext||window.webkitAudioContext)();
+      const buf=ctx.createBuffer(1,ctx.sampleRate*2.5,ctx.sampleRate);
+      const d=buf.getChannelData(0);
+      for(let i=0;i<d.length;i++){const t=i/ctx.sampleRate;const env=t<0.08?t/0.08:Math.exp(-(t-0.08)*2.2);d[i]=(Math.random()*2-1)*env*(1+0.5*Math.sin(t*18));}
+      const src=ctx.createBufferSource();src.buffer=buf;
+      const gain=ctx.createGain();gain.gain.value=1.1;
+      const lo=ctx.createBiquadFilter();lo.type='lowpass';lo.frequency.value=320;
+      src.connect(lo);lo.connect(gain);gain.connect(ctx.destination);src.start();
+    }catch(e){}
+  }
+  function flash(opacity,dur){
+    return new Promise(res=>{
+      boltSvg.style.transition=`opacity ${dur}ms`;
+      boltSvg.style.opacity=opacity;
+      overlay.style.background=opacity>0?`rgba(180,220,255,${opacity*0.18})`:'#000';
+      setTimeout(res,dur);
+    });
+  }
+  async function run(){
+    await new Promise(r=>overlay.addEventListener('click',r,{once:true}));
+    hint.style.display='none';
+    await new Promise(r=>setTimeout(r,80));
+    await flash(1,40);thunder();await flash(0,60);await new Promise(r=>setTimeout(r,90));
+    await flash(0.85,30);await flash(0,40);await new Promise(r=>setTimeout(r,50));
+    await flash(1,25);await flash(0,80);await new Promise(r=>setTimeout(r,120));
+    await flash(1,20);await new Promise(r=>setTimeout(r,60));
+    logo.style.opacity='1';await new Promise(r=>setTimeout(r,80));
+    await flash(0,200);await new Promise(r=>setTimeout(r,500));
+    overlay.style.transition='opacity .4s';overlay.style.opacity='0';
+    await new Promise(r=>setTimeout(r,420));overlay.remove();
+  }
+  run();
+})();
+
+updateId();
+renderCards();
 </script>
 </body>
 </html>
