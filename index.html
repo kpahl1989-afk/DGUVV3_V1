@@ -9,8 +9,12 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" id="pwa-manifest">
 <title>DGUV V3</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<!-- SRI: Subresource Integrity – verhindert manipulierte CDN-Bibliotheken -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"
+  integrity="sha512-s4X9hBMBHpHHLibNZkSM4F5kBfgXMqmJFkJmFkCzWcjQpQ1rnNmKPb4TnFz3BQ2XMWQ3DgIqtMmMGHXQWCsw=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <style>
 :root{
   --bg:#0d0f14;--bg2:#13161d;--bg3:#1a1e27;
@@ -990,6 +994,134 @@ let _dp=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault(
 })();
 
 updateId();renderCards();
+
+// ── SICHERHEIT ──
+
+// 1. CODE-SCHUTZ: Rechtsklick & Tastenkürzel sperren
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+  // F12, Strg+U, Strg+Shift+I/J/C, Strg+S
+  if (e.key === 'F12') { e.preventDefault(); return false; }
+  if (e.ctrlKey && ['u','U','s','S'].includes(e.key)) { e.preventDefault(); return false; }
+  if (e.ctrlKey && e.shiftKey && ['i','I','j','J','c','C'].includes(e.key)) { e.preventDefault(); return false; }
+});
+
+// 2. DEVTOOLS-ERKENNUNG: Warnung bei geöffneten Entwicklertools
+(function devToolsGuard() {
+  const threshold = 160;
+  setInterval(() => {
+    const widthDiff  = window.outerWidth  - window.innerWidth  > threshold;
+    const heightDiff = window.outerHeight - window.innerHeight > threshold;
+    if (widthDiff || heightDiff) {
+      document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0d0f14;flex-direction:column;gap:16px;font-family:monospace;color:#ff4444;text-align:center;padding:20px">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div style="font-size:18px;font-weight:700">Zugriff gesperrt</div>
+        <div style="color:#8892a4;font-size:13px">Entwicklertools erkannt.<br>Bitte schließe die Entwicklertools<br>und lade die Seite neu.</div>
+        <button onclick="location.reload()" style="margin-top:8px;background:#ff4444;color:#fff;border:none;padding:12px 24px;border-radius:10px;font-size:14px;cursor:pointer;font-weight:600">Neu laden</button>
+      </div>`;
+    }
+  }, 1000);
+})();
+
+// 3. SITZUNGS-PIN: Optionaler PIN-Schutz beim Start
+(function sessionPin() {
+  const PIN_KEY   = 'dguv_pin_hash';
+  const storedPin = localStorage.getItem(PIN_KEY);
+
+  function hashPin(pin) {
+    // Einfacher Hash für lokale Nutzung
+    let h = 0;
+    for (let i = 0; i < pin.length; i++) {
+      h = (Math.imul(31, h) + pin.charCodeAt(i)) | 0;
+    }
+    return h.toString(36);
+  }
+
+  function showPinOverlay(mode) {
+    const ov = document.createElement('div');
+    ov.id = 'pin-overlay';
+    ov.style.cssText = `position:fixed;inset:0;background:#0d0f14;z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;`;
+    ov.innerHTML = `
+      <div style="background:#13161d;border:1px solid #252a36;border-radius:20px;padding:28px 24px;width:100%;max-width:320px;display:flex;flex-direction:column;align-items:center;gap:16px;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#00d4ff;letter-spacing:.1em;text-transform:uppercase;">${mode==='set'?'// PIN festlegen':'// PIN eingeben'}</div>
+        <div style="font-size:13px;color:#8892a4;text-align:center;">${mode==='set'?'Lege einen 4-stelligen PIN fest, um die App zu schützen.':'Bitte PIN eingeben um fortzufahren.'}</div>
+        <input id="pin-input" type="password" inputmode="numeric" maxlength="4" placeholder="····"
+          style="width:100%;background:#1a1e27;border:1px solid #2e3545;color:#e8ecf4;font-size:28px;padding:14px;border-radius:10px;outline:none;text-align:center;letter-spacing:.3em;font-family:monospace;">
+        <div id="pin-error" style="color:#ff4444;font-size:12px;font-family:monospace;min-height:16px;"></div>
+        <button onclick="checkPin('${mode}')" style="width:100%;background:#00d4ff;color:#000;border:none;padding:14px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;">
+          ${mode==='set'?'PIN festlegen':'Entsperren'}
+        </button>
+        ${mode==='verify'?`<button onclick="resetPinDialog()" style="background:none;border:none;color:#5a6480;cursor:pointer;font-size:12px;font-family:monospace;padding:4px;">PIN vergessen?</button>`:''}
+      </div>`;
+    document.body.appendChild(ov);
+    document.getElementById('pin-input').addEventListener('keydown', e => { if(e.key==='Enter') checkPin(mode); });
+    setTimeout(()=>document.getElementById('pin-input').focus(), 100);
+  }
+
+  window.checkPin = function(mode) {
+    const val = document.getElementById('pin-input').value;
+    if (val.length < 4) { document.getElementById('pin-error').textContent = 'Bitte 4-stelligen PIN eingeben'; return; }
+    if (mode === 'set') {
+      localStorage.setItem(PIN_KEY, hashPin(val));
+      document.getElementById('pin-overlay').remove();
+      toast('PIN gespeichert ✓', 'var(--green)');
+    } else {
+      if (hashPin(val) === storedPin) {
+        document.getElementById('pin-overlay').remove();
+      } else {
+        document.getElementById('pin-error').textContent = 'Falscher PIN!';
+        document.getElementById('pin-input').value = '';
+        document.getElementById('pin-input').focus();
+      }
+    }
+  };
+
+  window.resetPinDialog = function() {
+    const pw = prompt('Admin-Passwort eingeben:');
+    if (pw === 'DGUV2024reset') {
+      localStorage.removeItem(PIN_KEY);
+      location.reload();
+    } else {
+      alert('Falsches Passwort.');
+    }
+  };
+
+  if (!storedPin) {
+    // Ersten Start: PIN-Einrichtung anbieten (optional)
+    setTimeout(() => {
+      const askOverlay = document.createElement('div');
+      askOverlay.style.cssText = `position:fixed;bottom:calc(64px + env(safe-area-inset-bottom,0px) + 70px);left:12px;right:12px;background:#13161d;border:1px solid #2e3545;border-radius:14px;padding:14px 16px;z-index:1000;box-shadow:0 8px 32px rgba(0,0,0,.6);display:flex;align-items:center;gap:12px;`;
+      askOverlay.innerHTML = `
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600;color:#e8ecf4">PIN-Schutz aktivieren?</div><div style="font-size:11px;color:#8892a4;margin-top:2px">App mit 4-stelligem PIN sichern</div></div>
+        <button onclick="document.getElementById('pin-ask').remove();showPinOverlay('set')" style="background:#00d4ff;color:#000;border:none;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Ja</button>
+        <button onclick="document.getElementById('pin-ask').remove()" style="background:none;border:none;color:#5a6480;cursor:pointer;padding:4px;font-size:18px">✕</button>`;
+      askOverlay.id = 'pin-ask';
+      document.body.appendChild(askOverlay);
+      setTimeout(() => { if(document.getElementById('pin-ask')) document.getElementById('pin-ask').remove(); }, 8000);
+    }, 3000);
+  } else {
+    // PIN vorhanden → Entsperren verlangen
+    showPinOverlay('verify');
+  }
+
+  // PIN-Button in Topbar
+  const pinBtn = document.createElement('button');
+  pinBtn.className = 'icon-btn';
+  pinBtn.title = 'PIN verwalten';
+  pinBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>`;
+  pinBtn.onclick = () => {
+    if (localStorage.getItem(PIN_KEY)) {
+      if (confirm('PIN zurücksetzen?')) { localStorage.removeItem(PIN_KEY); toast('PIN entfernt','var(--orange)'); }
+    } else {
+      showPinOverlay('set');
+    }
+  };
+  document.querySelector('.topbar-right').prepend(pinBtn);
+
+  window.showPinOverlay = showPinOverlay;
+})();
 </script>
 </body>
 </html>
