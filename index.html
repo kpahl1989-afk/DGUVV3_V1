@@ -191,12 +191,41 @@ select.form-input option{background:var(--bg3);}
 .modal-btns .btn{flex:1;padding:13px;font-size:14px;}
 .btn-qrprint{background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--accent);}
 
-/* IMPORT MODAL */
-#import-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;}
-#import-box{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:28px 24px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:16px;animation:slideUp .3s ease;}
-#import-box h2{font-family:var(--mono);font-size:13px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;text-align:center;}
-#import-box p{font-size:14px;color:var(--text2);text-align:center;line-height:1.6;}
+/* IMPORT als Tab */
 .btn-import{background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--accent);}
+.import-tab-screen{padding:20px;padding-bottom:calc(var(--nav-h) + var(--safe-bottom) + 20px);}
+.import-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px;}
+.import-card-title{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;}
+.import-card p{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px;}
+
+/* BENUTZER-VERWALTUNG OVERLAY */
+#users-overlay{position:fixed;inset:0;background:var(--bg);z-index:700;display:none;flex-direction:column;}
+#users-overlay.open{display:flex;}
+.overlay-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 16px;padding-top:calc(14px + var(--safe-top));display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.overlay-title{flex:1;font-family:var(--mono);font-size:13px;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;}
+#users-body{flex:1;overflow-y:auto;padding:16px;}
+.user-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+.user-avatar{width:38px;height:38px;border-radius:50%;background:var(--bg3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:14px;font-weight:700;color:var(--accent);flex-shrink:0;}
+.user-info{flex:1;min-width:0;}
+.user-name{font-weight:600;font-size:14px;}
+.user-role{font-size:11px;color:var(--text2);font-family:var(--mono);margin-top:2px;}
+.user-badge-admin{background:rgba(0,212,255,.12);color:var(--accent);border:1px solid rgba(0,212,255,.3);padding:2px 8px;border-radius:4px;font-size:10px;font-family:var(--mono);font-weight:600;}
+.user-badge-user{background:rgba(90,100,128,.15);color:var(--gray);border:1px solid rgba(90,100,128,.3);padding:2px 8px;border-radius:4px;font-size:10px;font-family:var(--mono);}
+.user-del-btn{background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.25);color:var(--red);padding:7px 10px;border-radius:8px;cursor:pointer;font-size:11px;display:flex;align-items:center;gap:4px;}
+
+/* AUDIT LOG OVERLAY */
+#log-overlay{position:fixed;inset:0;background:var(--bg);z-index:700;display:none;flex-direction:column;}
+#log-overlay.open{display:flex;}
+#log-body{flex:1;overflow-y:auto;padding:12px;}
+.log-entry{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:7px;}
+.log-ts{font-family:var(--mono);font-size:10px;color:var(--text2);margin-bottom:3px;}
+.log-user{font-family:var(--mono);font-size:11px;color:var(--accent);font-weight:600;}
+.log-action{font-family:var(--mono);font-size:11px;color:var(--text);}
+
+/* LOGIN OVERLAY */
+#login-overlay{position:fixed;inset:0;background:var(--bg);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;}
+.login-box{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:28px 24px;width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:16px;}
+.login-logo{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--accent);letter-spacing:.08em;}
 
 /* SCANNER */
 #scan-overlay{position:fixed;inset:0;background:#000;z-index:200;display:none;flex-direction:column;}
@@ -250,8 +279,17 @@ select.form-input option{background:var(--bg3);}
   <header class="topbar">
     <div class="topbar-logo">DGUV<span>/V3</span></div>
     <div class="topbar-right">
+      <button class="icon-btn" onclick="openLog()" title="Audit-Log" id="log-btn" style="display:none">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      </button>
+      <button class="icon-btn" onclick="openUsers()" title="Benutzerverwaltung" id="users-btn" style="display:none">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      </button>
       <button class="icon-btn" onclick="exportExcel()" title="Excel">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      </button>
+      <button class="icon-btn" onclick="logout()" title="Abmelden" style="color:var(--text2)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </button>
     </div>
   </header>
@@ -265,6 +303,9 @@ select.form-input option{background:var(--bg3);}
     </div>
     <div class="tab" id="tab-form" onclick="showTab('form')">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-2px;margin-right:3px"><path d="M12 5v14M5 12h14"/></svg>Neu anlegen
+    </div>
+    <div class="tab" id="tab-import" onclick="showTab('import')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-2px;margin-right:3px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>Import
     </div>
   </div>
   <div class="screens">
@@ -350,6 +391,32 @@ select.form-input option{background:var(--bg3);}
         </div>
       </div>
     </div>
+    <div class="screen" id="screen-import">
+      <div class="import-tab-screen">
+        <div class="import-card">
+          <div class="import-card-title">// Excel / JSON importieren</div>
+          <p>Importiere eine vorhandene Prüfliste für den aktuellen Bereich (<span id="import-area-label">—</span>).</p>
+          <label class="btn btn-import" style="cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+            Datei auswählen (.xlsx / .json)
+            <input type="file" id="import-file" accept=".xlsx,.json" style="display:none" onchange="handleImport(this)">
+          </label>
+          <div style="font-size:12px;color:var(--gray);line-height:1.5;">Erwartete Spalten (Excel):<br>ID · Bezeichnung · Kategorie · Standort · Verantwortlicher · Prüfintervall · Letzte Prüfung · Prüfer · Bemerkung</div>
+        </div>
+        <div class="import-card">
+          <div class="import-card-title">// Daten exportieren</div>
+          <p>Exportiere alle Daten als JSON-Backup oder Excel-Datei.</p>
+          <button class="btn btn-secondary" style="margin-bottom:8px;" onclick="exportJSON()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            JSON-Backup exportieren
+          </button>
+          <button class="btn btn-primary" onclick="exportExcel()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Excel exportieren
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
   <nav class="bottom-nav">
     <button class="nav-item active" id="nav-list" onclick="showTab('list')">
@@ -412,19 +479,45 @@ select.form-input option{background:var(--bg3);}
   </div>
 </div>
 
-<!-- IMPORT MODAL -->
-<div id="import-overlay">
-  <div id="import-box">
-    <h2>// Dataimport</h2>
-    <p>Möchtest du eine vorhandene Prüfliste importieren?<br><span style="font-size:12px;color:var(--gray)">Excel (.xlsx) oder JSON-Datei</span></p>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <label class="btn btn-import" style="cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-        Datei importieren
-        <input type="file" id="import-file" accept=".xlsx,.json" style="display:none" onchange="handleImport(this)">
-      </label>
-      <button class="btn btn-secondary" onclick="closeImport()">Überspringen</button>
+<!-- BENUTZER-VERWALTUNG OVERLAY -->
+<div id="users-overlay">
+  <div class="overlay-header">
+    <button class="icon-btn" onclick="closeUsers()" style="color:var(--text2)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <div class="overlay-title">// Benutzerverwaltung</div>
+    <button class="icon-btn" onclick="showAddUser()" title="Benutzer hinzufügen" style="color:var(--green)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg>
+    </button>
+  </div>
+  <div id="users-body"></div>
+</div>
+
+<!-- AUDIT LOG OVERLAY -->
+<div id="log-overlay">
+  <div class="overlay-header">
+    <button class="icon-btn" onclick="closeLog()" style="color:var(--text2)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <div class="overlay-title">// Audit-Log</div>
+    <button class="icon-btn" onclick="clearLog()" title="Log leeren" style="color:var(--red)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+    </button>
+  </div>
+  <div id="log-body"></div>
+</div>
+
+<!-- LOGIN OVERLAY -->
+<div id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">DGUV<span style="color:var(--text2);font-weight:400">/V3</span></div>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;">// Anmelden</div>
+    <div style="width:100%;display:flex;flex-direction:column;gap:10px;">
+      <input id="login-username" type="text" class="form-input" placeholder="Benutzername" autocomplete="off" autocapitalize="none">
+      <input id="login-password" type="password" class="form-input" placeholder="Passwort">
     </div>
+    <div id="login-error" style="color:var(--red);font-size:12px;font-family:var(--mono);min-height:16px;"></div>
+    <button class="btn btn-primary" onclick="doLogin()" style="width:100%">Anmelden</button>
   </div>
 </div>
 
@@ -456,6 +549,9 @@ select.form-input option{background:var(--bg3);}
 <script>
 // ── DATA ──
 const STORAGE_KEY='dguv_v3_v3';
+const USERS_KEY='dguv_users';
+const LOG_KEY='dguv_audit_log';
+const SESSION_KEY='dguv_session';
 const INTERVALS={Monatlich:1,Vierteljährlich:3,Halbjährlich:6,Jährlich:12,"2-jährlich":24};
 const DEFAULT={
   fertigung:[
@@ -469,6 +565,190 @@ const DEFAULT={
     {id:'BR-003',bez:"Drucker HP LaserJet",kat:"Bürogerät",ort:"Büro 202",ver:"K. Wagner",int:"2-jährlich",last:"2024-05-10",pruefer:"P. Schmidt",bem:""},
   ]
 };
+
+// ── BENUTZERVERWALTUNG ──
+const DEFAULT_ADMIN={username:'admin',password:'DGUV2024!',role:'admin',name:'Administrator'};
+
+function loadUsers(){
+  try{const r=localStorage.getItem(USERS_KEY);return r?JSON.parse(r):[JSON.parse(JSON.stringify(DEFAULT_ADMIN))];}
+  catch(e){return [JSON.parse(JSON.stringify(DEFAULT_ADMIN))];}
+}
+function saveUsers(u){try{localStorage.setItem(USERS_KEY,JSON.stringify(u));}catch(e){}}
+
+let _users=loadUsers();
+let _currentUser=null;
+
+function hashPw(pw){
+  let h=0;for(let i=0;i<pw.length;i++){h=Math.imul(31,h)+pw.charCodeAt(i)|0;}return h.toString(36);
+}
+
+function doLogin(){
+  const u=document.getElementById('login-username').value.trim();
+  const p=document.getElementById('login-password').value;
+  const user=_users.find(x=>x.username===u&&(x.password===p||x.passwordHash===hashPw(p)));
+  if(!user){
+    document.getElementById('login-error').textContent='Falscher Benutzername oder Passwort';
+    document.getElementById('login-password').value='';
+    return;
+  }
+  _currentUser=user;
+  sessionStorage.setItem(SESSION_KEY,JSON.stringify({username:user.username,role:user.role,name:user.name}));
+  document.getElementById('login-overlay').style.display='none';
+  auditLog('LOGIN','Angemeldet');
+  applyUserUI();
+}
+
+function applyUserUI(){
+  if(!_currentUser)return;
+  // Admin-Buttons einblenden
+  if(_currentUser.role==='admin'){
+    document.getElementById('log-btn').style.display='';
+    document.getElementById('users-btn').style.display='';
+  }
+  // PIN-Button entfernen wenn vorhanden (wird durch Login ersetzt)
+  const pinBtn=document.getElementById('pin-ask');
+  if(pinBtn)pinBtn.remove();
+}
+
+function logout(){
+  auditLog('LOGOUT','Abgemeldet');
+  _currentUser=null;
+  sessionStorage.removeItem(SESSION_KEY);
+  location.reload();
+}
+
+// ── AUDIT LOG ──
+function loadLog(){try{const r=localStorage.getItem(LOG_KEY);return r?JSON.parse(r):[];}catch(e){return [];}}
+function saveLog(l){try{localStorage.setItem(LOG_KEY,JSON.stringify(l));}catch(e){}}
+
+function auditLog(action,detail){
+  const log=loadLog();
+  const entry={
+    ts:new Date().toISOString(),
+    user:_currentUser?_currentUser.username:'system',
+    name:_currentUser?_currentUser.name:'System',
+    action,detail
+  };
+  log.unshift(entry);
+  if(log.length>500)log.splice(500);
+  saveLog(log);
+}
+
+function openLog(){
+  if(!_currentUser||_currentUser.role!=='admin'){toast('Kein Zugriff','var(--red)');return;}
+  const log=loadLog();
+  const body=document.getElementById('log-body');
+  if(!log.length){body.innerHTML='<div style="padding:40px;text-align:center;color:var(--text2);font-family:var(--mono);font-size:12px;">Keine Einträge</div>';document.getElementById('log-overlay').classList.add('open');return;}
+  body.innerHTML=log.map(e=>{
+    const d=new Date(e.ts);
+    const ts=d.toLocaleDateString('de-DE')+' '+d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    return `<div class="log-entry"><div class="log-ts">${ts}</div><div><span class="log-user">[${e.name||e.user}]</span> <span class="log-action">${e.action} – ${e.detail}</span></div></div>`;
+  }).join('');
+  document.getElementById('log-overlay').classList.add('open');
+}
+function closeLog(){document.getElementById('log-overlay').classList.remove('open');}
+function clearLog(){
+  if(!confirm('Audit-Log wirklich leeren?'))return;
+  saveLog([]);
+  auditLog('LOG_CLEAR','Audit-Log geleert');
+  closeLog();
+  toast('Log geleert','var(--orange)');
+}
+
+// ── BENUTZER-OVERLAY ──
+function openUsers(){
+  if(!_currentUser||_currentUser.role!=='admin'){toast('Kein Zugriff','var(--red)');return;}
+  renderUsers();
+  document.getElementById('users-overlay').classList.add('open');
+}
+function closeUsers(){document.getElementById('users-overlay').classList.remove('open');}
+
+function renderUsers(){
+  _users=loadUsers();
+  const body=document.getElementById('users-body');
+  body.innerHTML=_users.map((u,i)=>{
+    const initials=(u.name||u.username).substring(0,2).toUpperCase();
+    const isAdmin=u.role==='admin';
+    const isSelf=u.username===_currentUser.username;
+    return `<div class="user-card">
+      <div class="user-avatar">${initials}</div>
+      <div class="user-info">
+        <div class="user-name">${u.name||u.username}</div>
+        <div class="user-role">@${u.username} &nbsp; <span class="${isAdmin?'user-badge-admin':'user-badge-user'}">${isAdmin?'ADMIN':'NUTZER'}</span></div>
+      </div>
+      ${!isSelf?`<button class="user-del-btn" onclick="delUser(${i})">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>
+      </button>`:'<span style="font-size:10px;color:var(--gray);font-family:var(--mono)">Ich</span>'}
+    </div>`;
+  }).join('');
+  // Add-User-Formular
+  body.innerHTML+=`<div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:16px;margin-top:6px;">
+    <div style="font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;">// Neuen Benutzer anlegen</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <input id="new-user-name" type="text" class="form-input" placeholder="Vollständiger Name" autocomplete="off">
+      <input id="new-user-un" type="text" class="form-input" placeholder="Benutzername (klein, kein Leerzeichen)" autocomplete="off" autocapitalize="none">
+      <input id="new-user-pw" type="password" class="form-input" placeholder="Passwort (mind. 6 Zeichen)">
+      <div style="display:flex;gap:8px;align-items:center;padding:4px 0;">
+        <input type="checkbox" id="new-user-admin" style="width:16px;height:16px;cursor:pointer;">
+        <label for="new-user-admin" style="font-size:13px;color:var(--text2);cursor:pointer;">Admin-Rechte</label>
+      </div>
+      <button class="btn btn-green" onclick="addUser()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        Benutzer anlegen
+      </button>
+    </div>
+  </div>`;
+}
+
+function addUser(){
+  const name=document.getElementById('new-user-name').value.trim();
+  const un=document.getElementById('new-user-un').value.trim().toLowerCase();
+  const pw=document.getElementById('new-user-pw').value;
+  const isAdmin=document.getElementById('new-user-admin').checked;
+  if(!name||!un||!pw){toast('Alle Felder ausfüllen!','var(--red)');return;}
+  if(pw.length<6){toast('Passwort mind. 6 Zeichen','var(--red)');return;}
+  if(!/^[a-z0-9_]+$/.test(un)){toast('Benutzername: nur a-z, 0-9, _','var(--red)');return;}
+  _users=loadUsers();
+  if(_users.find(u=>u.username===un)){toast('Benutzername bereits vorhanden','var(--red)');return;}
+  _users.push({username:un,password:pw,role:isAdmin?'admin':'user',name});
+  saveUsers(_users);
+  auditLog('USER_ADD','Benutzer angelegt: '+un+' ('+name+')');
+  renderUsers();
+  toast('Benutzer '+name+' angelegt','var(--green)');
+}
+
+function delUser(idx){
+  _users=loadUsers();
+  const u=_users[idx];
+  if(!u)return;
+  if(u.username===_currentUser.username){toast('Eigenen Account nicht löschbar','var(--red)');return;}
+  if(!confirm('Benutzer "'+u.name+'" wirklich löschen?'))return;
+  _users.splice(idx,1);
+  saveUsers(_users);
+  auditLog('USER_DEL','Benutzer gelöscht: '+u.username);
+  renderUsers();
+  toast('Benutzer gelöscht','var(--orange)');
+}
+
+function showAddUser(){}// Wird durch scrollTo in renderUsers ersetzt
+
+// ── SESSION RESTORE ──
+(function initAuth(){
+  const sess=sessionStorage.getItem(SESSION_KEY);
+  if(sess){
+    try{
+      const s=JSON.parse(sess);
+      _users=loadUsers();
+      const user=_users.find(u=>u.username===s.username);
+      if(user){_currentUser=user;document.getElementById('login-overlay').style.display='none';applyUserUI();auditLog('SESSION','Sitzung wiederhergestellt');return;}
+    }catch(e){}
+  }
+  // Login anzeigen – aber erst NACH dem Intro
+  document.getElementById('login-overlay').style.display='flex';
+  // Enter-Key
+  document.getElementById('login-password').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+  document.getElementById('login-username').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('login-password').focus();});
+})();
 
 function loadData(){try{const r=localStorage.getItem(STORAGE_KEY);return r?JSON.parse(r):JSON.parse(JSON.stringify(DEFAULT));}catch(e){return JSON.parse(JSON.stringify(DEFAULT));}}
 function saveData(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(allData));}catch(e){}}
@@ -703,6 +983,7 @@ function finishPruefung(){
   const gesamtErgebnis=fails===0?'Bestanden':'Nicht bestanden';
   r.bem=gesamtErgebnis+(fails>0?` (${fails} Mängel)`:'');
   saveData();renderCards();
+  auditLog('PRUEFUNG',r.id+' – '+r.bez+' – '+gesamtErgebnis+(fails>0?' ('+fails+' Mängel)':''));
   toast('Prüfung abgeschlossen: '+gesamtErgebnis,fails===0?'var(--green)':'var(--red)');
   document.getElementById('pruef-overlay').classList.remove('open');
   setTimeout(()=>highlightCard(currentPruefId),100);
@@ -754,8 +1035,12 @@ function showTab(t){
   document.querySelectorAll('.tab').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-item:not(.nav-scan)').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+t).classList.add('active');
-  document.getElementById('tab-'+t).classList.add('active');
-  document.getElementById('nav-'+t).classList.add('active');
+  const tabEl=document.getElementById('tab-'+t);if(tabEl)tabEl.classList.add('active');
+  const navEl=document.getElementById('nav-'+t);if(navEl)navEl.classList.add('active');
+  if(t==='import'){
+    const lbl=document.getElementById('import-area-label');
+    if(lbl)lbl.textContent=currentArea==='fertigung'?'Fertigung':'Büro';
+  }
 }
 
 // ── DATES ──
@@ -882,6 +1167,7 @@ function saveEntry(){
     const idx=allData[currentArea].findIndex(d=>d.id===_editId);
     if(idx!==-1)allData[currentArea][idx]={id:_editId,bez,kat,ort,ver,int,last,pruefer,bem};
     const sid=_editId;cancelEdit();saveData();renderCards();
+    auditLog('EDIT','Prüfling bearbeitet: '+sid);
     toast('Prüfling '+sid+' aktualisiert','var(--orange)');showTab('list');setTimeout(()=>highlightCard(sid),100);
   } else {
     const p=currentArea==='fertigung'?'WK':'BR';
@@ -890,6 +1176,7 @@ function saveEntry(){
     const newId=p+'-'+String(mx+1).padStart(3,'0');
     allData[currentArea].push({id:newId,bez,kat,ort,ver,int,last,pruefer,bem});
     clearForm();saveData();renderCards();
+    auditLog('ADD','Prüfling angelegt: '+newId+' – '+bez);
     toast('Prüfling '+newId+' angelegt','var(--green)');showTab('list');
     setTimeout(()=>{const c=document.getElementById(cardId(newId));if(c)c.scrollIntoView({behavior:'smooth',block:'center'});},100);
   }
@@ -908,8 +1195,11 @@ function clearForm(){
 }
 function del(id){
   if(!confirm('Prüfling '+id+' löschen?'))return;
+  const r=allData[currentArea].find(d=>d.id===id);
   allData[currentArea]=allData[currentArea].filter(r=>r.id!==id);
-  saveData();renderCards();updateId();toast('Prüfling gelöscht','var(--orange)');
+  saveData();renderCards();updateId();
+  auditLog('DEL','Prüfling gelöscht: '+id+(r?' – '+r.bez:''));
+  toast('Prüfling gelöscht','var(--orange)');
 }
 function highlightCard(id){
   const card=document.getElementById(cardId(id));if(!card)return;
@@ -924,7 +1214,16 @@ function exportExcel(){
   const ws=XLSX.utils.json_to_sheet(rows);ws['!cols']=[10,26,22,18,20,16,14,14,14,18,24].map(w=>({wch:w}));
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,currentArea==='fertigung'?'Fertigung':'Büro');
   XLSX.writeFile(wb,'DGUV_V3_'+currentArea+'_'+new Date().toISOString().slice(0,10)+'.xlsx');
+  auditLog('EXPORT','Excel exportiert: '+currentArea);
   toast('Excel heruntergeladen','var(--green)');
+}
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(allData,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='DGUV_V3_Backup_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  auditLog('EXPORT','JSON-Backup exportiert');
+  toast('JSON-Backup heruntergeladen','var(--green)');
 }
 function toast(msg,color){
   const t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;
@@ -933,17 +1232,17 @@ function toast(msg,color){
 }
 
 // ── IMPORT ──
-function closeImport(){document.getElementById('import-overlay').style.display='none';}
 function handleImport(input){
   const file=input.files[0];if(!file)return;
   const reader=new FileReader();
   if(file.name.endsWith('.json')){
-    reader.onload=e=>{try{const imp=JSON.parse(e.target.result);if(imp.fertigung||imp.buero){if(imp.fertigung)allData.fertigung=imp.fertigung;if(imp.buero)allData.buero=imp.buero;}else if(Array.isArray(imp))allData[currentArea]=imp;saveData();renderCards();closeImport();toast('Import erfolgreich!','var(--green)');}catch(err){toast('Fehler beim Import','var(--red)');}};
+    reader.onload=e=>{try{const imp=JSON.parse(e.target.result);if(imp.fertigung||imp.buero){if(imp.fertigung)allData.fertigung=imp.fertigung;if(imp.buero)allData.buero=imp.buero;}else if(Array.isArray(imp))allData[currentArea]=imp;saveData();renderCards();auditLog('IMPORT','JSON importiert: '+file.name);toast('Import erfolgreich!','var(--green)');}catch(err){toast('Fehler beim Import','var(--red)');}};
     reader.readAsText(file);
   } else {
-    reader.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws);const imported=rows.map(r=>({id:r['ID']||'',bez:r['Bezeichnung']||'',kat:r['Kategorie']||'',ort:r['Standort']||'',ver:r['Verantwortlicher']||'',int:r['Prüfintervall']||'Jährlich',last:r['Letzte Prüfung']||'',pruefer:r['Prüfer']||'',bem:r['Bemerkung']||''})).filter(r=>r.bez);allData[currentArea]=imported;saveData();renderCards();closeImport();toast(imported.length+' Prüflinge importiert','var(--green)');}catch(err){toast('Fehler beim Excel-Import','var(--red)');}};
+    reader.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws);const imported=rows.map(r=>({id:r['ID']||'',bez:r['Bezeichnung']||'',kat:r['Kategorie']||'',ort:r['Standort']||'',ver:r['Verantwortlicher']||'',int:r['Prüfintervall']||'Jährlich',last:r['Letzte Prüfung']||'',pruefer:r['Prüfer']||'',bem:r['Bemerkung']||''})).filter(r=>r.bez);allData[currentArea]=imported;saveData();renderCards();auditLog('IMPORT','Excel importiert: '+file.name+' ('+imported.length+' Einträge)');toast(imported.length+' Prüflinge importiert','var(--green)');}catch(err){toast('Fehler beim Excel-Import','var(--red)');}};
     reader.readAsArrayBuffer(file);
   }
+  input.value='';
 }
 
 // ── QR ENGINE ──
